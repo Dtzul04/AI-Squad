@@ -46,10 +46,11 @@ It uses Python for the backend and modern frontend tools for interactivity.
     pip install -r requirements.txt
 
 4. Set environment variables - Create a .env file in the project root:
-'''env
+    ```env
     GROQ_API_KEY=your_api_key_here
     FLASK_ENV=development
-'''
+    ```
+
 5. Run the app
 
     python app.py
