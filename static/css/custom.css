@@ -1,0 +1,35 @@
+body {
+  font-family: "Mozilla Headline", sans-serif;
+}
+
+button, textarea, input {
+  transition: all 0.3 ease;
+}
+
+#suggestion::-webkit-scrollbar {
+  width: 8px;
+}
+
+#suggestion::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 1);
+  border-radius: 4px;
+}
+
+#suggestion::-webkit-scrollbar-track {
+  background: rgba( 0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+h1, h2, p {
+  text-shadow: 0 1px 2px rgba(0, 0 ,0, 0.2);
+}
+
+.ai-result {
+  opacity: 0;
+  animation: fadeIn 0.5s forwards;
+  transition: opacity 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}

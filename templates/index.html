@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Mozilla+Headline:wght@200..700&display=swap" rel="stylesheet">
+
+  <title>AI-Squad</title>
+</head>
+<body class="font-sans bg-gradient-to-b from-blue-700 to-indigo-400 min-h-screen flex flex-col items-center">
+
+  <header class="text-white text-center my-12">
+    <h1 class="text-6xl font-bold mb-4">AI-Squad</h1>
+    <p class="text-2xl">A resume assistant made for smart job seekers like you!</p>
+  </header>
+
+  <main class="w-full max-w-4xl px-6 flex flex-col gap-6 text-white pb-12"
+        x-data="resumeApp">
+
+    <!-- Resume Section -->
+    <section class="flex flex-col gap-4">
+      <label for="resume" class="text-2xl font-semibold">Paste your resume here:</label>
+      <textarea id="resume" x-model="resumeText" rows="15" 
+                class="w-full p-4 rounded bg-indigo-900 bg-opacity-50 text-white placeholder-indigo-300 font-semibold text-lg" 
+                placeholder="Paste your resume here..."></textarea>
+      <button x-on:click="processResume" :disabled="loading"
+              class="self-start px-6 py-3 bg-indigo-700 hover:bg-indigo-600 rounded text-white font-semibold text-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+        Enhance with AI
+      </button>
+    </section>
+
+    <!-- Suggestion Section -->
+    <section class="flex flex-col gap-4">
+      <h2 class="text-2xl font-semibold">Suggestion:</h2>
+      <div id="suggestion" 
+           class="w-full p-6 rounded bg-indigo-900 bg-opacity-50 min-h-[200px] max-h-[400px] md:max-h-[600px] text-lg flex flex-col justify-start space-y-2 overflow-auto transition-all duration-500"
+           aria-live="polite">
+        <template x-if="loading">
+          <p class="animate-pulse">⏳ Processing with AI...</p>
+        </template>
+        <template x-if="!loading && aiResult">
+          <p x-text="aiResult" class="leading-relaxed whitespace-pre-line mb-2 ai-result"></p>
+        </template>
+        <template x-if="!loading && !aiResult">
+          <p class="text-indigo-300 italic">Your AI suggestions will appear here...</p>
+        </template>
+      </div>
+    </section>
+  </main>
+
+  <!-- Alpine.js -->
+  <script src="https://unpkg.com/alpinejs" defer></script>
+
+  <!-- Custom JS (optional for helpers) -->
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+  <!-- Alpine component for resume app -->
+  <script>
+    document.addEventListener("alpine:init", () => {
+      Alpine.data("resumeApp", () => ({
+        resumeText: '',
+        aiResult: '',
+        loading: false,
+
+        async processResume() {
+          if (!this.resumeText.trim()) {
+            this.aiResult = '⚠️ Please paste your resume first.';
+            return;
+          }
+          this.loading = true;
+          this.aiResult = '';
+          try {
+            const response = await fetch('/process', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ text: this.resumeText })
+            });
+            const data = await response.json();
+            this.aiResult = data.result;
+
+            // Smooth scroll suggestion box to bottom
+            this.$nextTick(() => this.scrollToBottom());
+          } catch (error) {
+            this.aiResult = '❌ Error connecting to server.';
+          } finally {
+            this.loading = false;
+          }
+        },
+
+        scrollToBottom() {
+          const suggestionBox = document.getElementById("suggestion");
+          suggestionBox.scrollTo({ top: suggestionBox.scrollHeight, behavior: 'smooth' });
+        }
+      }));
+    });
+  </script>
+</body>
+</html>
+
